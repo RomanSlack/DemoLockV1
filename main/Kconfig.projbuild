@@ -1,0 +1,25 @@
+menu "LED Configuration"
+    config BLINK_LED_TYPE
+        string "Blink LED Type"
+        default "LED Strip"
+        help
+          Choose LED Strip if you are using an addressable LED.
+
+    config BLINK_LED_STRIP_BACKEND_RMT
+        bool "Use RMT for LED strip back end"
+        default y
+        help
+          Set to 'y' to use the RMT peripheral for the LED strip.
+
+    config BLINK_GPIO
+        int "Blink GPIO Number"
+        default 48
+        help
+          GPIO number for the LED. (Set to 48 to match the working example.)
+
+    config BLINK_PERIOD
+        int "Blink Period in MS"
+        default 1000
+        help
+          Blink period in milliseconds.
+endmenu

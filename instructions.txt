@@ -1,0 +1,26 @@
+Hi Brayden,
+The team at AppliedLogix is interested in seeing how the coding agent works through a coding problem for an embedded system. We often use the EPS-32 for small embedded projects where some level of bluetooth or wifi interface is required. I can provide you an ESP-32-S3 development board as shown in the image below (ESP32 S3 Development Board ESP32-S3-DevKitC-1-N16R8 WiFi + Bluetooth MCU Module)
+
+We'd like to see a demo where you install the ExpressIF-IDF tools (https://github.com/espressif/esp-idf)  and then create the code for the ESP32 and a companion website/app to meet the following specifications:
+
+1) Create a lock for a safe that could only be opened with a phone. Write an ESP32 IDF-based firmware application that connects to Wi-Fi and exposes 2 endpoints GET /challenge to retrieve a challenge token, and POST /response to send back a response convolved with a pre-shared key. The ESP32 serves the static page that computes the response as well as stores the IP and pre-shared key via the browser's localstorage API. Use the ESP32's on board LED to indicate locked (RED) or unlocked (GREEN) or bad token (BLUE for 4 seconds) status. This can be either with the ESP32 in AP mode or with both the ESP32 and the phone connected to the same network.
+
+We'd like to observe how the agent handles:
+1)  installing the development tools (if that is possible)
+2)  planning the code structure from the specification
+3) writing the needed files
+4) testing/executing the code
+5) observing and correcting syntax or runtime errors
+6) other relevant details
+
+If that goes well, one possible extension is that the ESP32 could create and host (perhaps in AP mode) the EV charger demo webpage that we started creating during the last demo session.
+
+We can schedule a follow up demo meeting when you are ready. Let me know if you have any questions.
+
+Thank you,
+
+Clark
+
+_________________________
+Comment instructions for all comments: you must write all code comments in Chinese and add
+crazy emojis to them as well you MUST follow this for any comments you write in the main.c and the index.html

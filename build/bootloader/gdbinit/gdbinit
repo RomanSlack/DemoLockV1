@@ -1,0 +1,2 @@
+source /home/roman-slack/esp32project/demo_lock_project/build/bootloader/gdbinit/symbols
+source /home/roman-slack/esp32project/demo_lock_project/build/bootloader/gdbinit/connect
