@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "my_lock_project",
-    "project_version":    "1",
+    "project_version":    "d801726-dirty",
     "project_path":       "/home/roman-slack/esp32project/demo_lock_project",
     "idf_path":           "/home/roman-slack/esp32project/esp-idf",
     "build_dir":          "/home/roman-slack/esp32project/demo_lock_project/build",

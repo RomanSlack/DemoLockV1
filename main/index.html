@@ -1,30 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
+    <!--
+         The viewport meta tag ensures the page scales correctly on mobile devices.
+         It sets the width of the page to follow the screen-width of the device.
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔒 智能锁控制面板</title>
+    <title>🔒 Smart Lock Control Panel</title>
     <style>
+        /* Global Styles for the page */
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
+            max-width: 600px;           /* Constrain the maximum width for better readability */
+            margin: 20px auto;          /* Center the page horizontally with auto margins */
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f5f5f5;  /* Light background color for contrast */
         }
+
+        /* Container styling to create a card-like UI element */
         .container {
             background: white;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;         /* Rounded corners for a modern look */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
         }
+
+        /* Header styles */
         h1 {
             color: #333;
             text-align: center;
         }
+
+        /* Input group spacing */
         .input-group {
             margin: 20px 0;
         }
+
+        /* Styles for input fields */
         input {
             width: 100%;
             padding: 8px;
@@ -33,30 +46,40 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
+        /* Button styling for uniform appearance */
         button {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
             border: none;
             border-radius: 4px;
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Primary green color */
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
+        /* Button hover effect for improved user feedback */
         button:hover {
             background-color: #45a049;
         }
+
+        /* Status message styling for feedback alerts */
         #status {
             text-align: center;
             margin: 20px 0;
             padding: 10px;
             border-radius: 4px;
         }
+
+        /* Error message styling */
         .error {
             background-color: #ffebee;
             color: #c62828;
         }
+
+        /* Success message styling */
         .success {
             background-color: #e8f5e9;
             color: #2e7d32;
@@ -64,69 +87,115 @@
     </style>
 </head>
 <body>
+    <!-- Main container for the Smart Lock Control Panel UI -->
     <div class="container">
-        <h1>🔒 智能锁控制面板</h1>
+        <!-- Page header indicating the purpose of the control panel -->
+        <h1>🔒 Smart Lock Control Panel</h1>
+
+        <!-- Input group for the Pre-Shared Key (PSK) -->
         <div class="input-group">
-            <label for="keyField">预共享密钥 (PSK):</label>
-            <input type="password" id="keyField" placeholder="输入密钥"/>
+            <label for="keyField">Pre-Shared Key (PSK):</label>
+            <input type="password" id="keyField" placeholder="Enter key"/>
         </div>
-        <button id="saveKeyBtn">💾 保存密钥</button>
-        <button id="openLockBtn">🔓 解锁</button>
+
+        <!-- Button to save the PSK to local storage -->
+        <button id="saveKeyBtn">💾 Save Key</button>
+        <!-- Button to initiate the unlock procedure -->
+        <button id="openLockBtn">🔓 Unlock</button>
+
+        <!-- Div for displaying status messages (e.g., success or error notifications) -->
         <div id="status"></div>
     </div>
 
+    <!-- JavaScript section for handling UI interactions and server communication -->
     <script>
+        // Obtain references to key DOM elements for later manipulation
         const keyField = document.getElementById('keyField');
         const saveKeyBtn = document.getElementById('saveKeyBtn');
         const openLockBtn = document.getElementById('openLockBtn');
         const status = document.getElementById('status');
 
-        // 从localStorage加载密钥
+        // Load the pre-shared key from localStorage; default to 'DEFAULT_KEY' if not present
         const storedKey = localStorage.getItem('psk') || 'DEFAULT_KEY';
         keyField.value = storedKey;
 
+        /**
+         * Displays a temporary status message to the user.
+         *
+         * This function updates the status div with a message and applies a visual cue
+         * based on whether the message indicates an error or success. The message is cleared
+         * automatically after 3 seconds.
+         *
+         * @param {string} message - The message text to display.
+         * @param {boolean} [isError=false] - Flag indicating if the message is an error.
+         */
         function showStatus(message, isError = false) {
             status.textContent = message;
             status.className = isError ? 'error' : 'success';
+            // Clear the message after 3 seconds to keep the UI clean
             setTimeout(() => {
                 status.textContent = '';
                 status.className = '';
             }, 3000);
         }
 
+        /**
+         * Event handler for the Save Key button click event.
+         *
+         * This function saves the user-entered pre-shared key (PSK) to localStorage,
+         * ensuring the key persists between sessions. A confirmation message is shown upon saving.
+         */
         saveKeyBtn.onclick = () => {
             localStorage.setItem('psk', keyField.value);
-            showStatus('✅ 密钥已保存!');
+            showStatus('✅ Key saved!');
         };
 
+        /**
+         * Event handler for the Unlock button click event.
+         *
+         * This asynchronous function orchestrates the challenge-response authentication process:
+         * 1. Retrieves the PSK from localStorage.
+         * 2. Requests a challenge token from the server via the '/challenge' endpoint.
+         * 3. Constructs the response by concatenating the challenge token with the PSK.
+         * 4. Sends the response to the server using the '/response' endpoint.
+         * 5. Processes the server response and displays a corresponding status message.
+         *
+         * If any error occurs during the process, an error message is displayed.
+         */
         openLockBtn.onclick = async () => {
+            // Retrieve the pre-shared key; if absent, prompt the user to set one
             const psk = localStorage.getItem('psk') || '';
             if (!psk) {
-                showStatus('⚠️ 请先设置密钥!', true);
+                showStatus('⚠️ Please set a key first!', true);
                 return;
             }
 
             try {
-                // 获取挑战令牌
-                const challenge = await fetch('/challenge').then(r => r.text());
+                // Request a challenge token from the server
+                const challenge = await fetch('/challenge').then(response => response.text());
 
-                // 发送响应
+                // Create the response token by concatenating the challenge with the PSK
                 const response = challenge + psk;
+
+                // Send the response token to the server for validation
                 const res = await fetch('/response', {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
                     body: response
                 });
 
+                // If the server response indicates an error, display an error message
                 if (!res.ok) {
                     const text = await res.text();
-                    showStatus(`❌ 错误: ${text}`, true);
+                    showStatus(`❌ Error: ${text}`, true);
                 } else {
-                    showStatus('🎉 解锁成功!');
+                    // Otherwise, display a success message indicating unlock success
+                    showStatus('🎉 Unlock successful!');
                 }
             } catch (err) {
+                // Log any unexpected errors to the console and inform the user
                 console.error(err);
-                showStatus('❌ 解锁失败!', true);
+                showStatus('❌ Unlock failed!', true);
             }
         };
     </script>
